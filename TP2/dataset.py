@@ -39,7 +39,7 @@ class CardioDataset(Dataset):
             
         # Récupérer les features et le label à l'index 'idx'
         local_features = self.features[idx]
-        local_labels = self.lables[idx]
+        local_labels = self.labels[idx]
         
         return {"features": local_features, "labels": local_labels}
 
