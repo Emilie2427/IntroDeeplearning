@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from torch.utils.tensorboard import SummaryWriter
+import numpy as np
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 
 # Importation du Dataset défini à l'exercice 1
 from dataset import CardioDataset
@@ -101,7 +103,7 @@ def train_model(opt_name, learning_rate=0.001, epochs=30):
     elif opt_name == "RMSprop":
         optimizer = optim.RMSprop(model.parameters(), lr=learning_rate)
     elif opt_name == "Adam":
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)"
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
         
     writer = SummaryWriter(f'runs/cardio_{opt_name}_lr{learning_rate}')
     
@@ -120,7 +122,42 @@ def train_model(opt_name, learning_rate=0.001, epochs=30):
         writer.add_scalar('Training Loss', running_loss / len(train_loader), epoch)
         
     writer.close()
+    return model
+
+def evaluate_model(model, test_loader):
+    model.eval()
+    all_targets = []
+    all_preds_probs = []
+    
+    with torch.no_grad(): # Désactiver le calcul des gradients
+        for batch in test_loader:
+            inputs, targets = batch["features"].to(device), batch["labels"].to(device)
+            outputs = model(inputs)
+            
+            # Stocker les probabilités et les cibles pour sklearn
+            all_targets.extend(targets.cpu().numpy())
+            all_preds_probs.extend(outputs.cpu().numpy())
+            
+    # Conversion en numpy array
+    all_targets = np.array(all_targets)
+    all_preds_probs = np.array(all_preds_probs)
+    
+    # Prédictions binaires (seuil à 0.5)
+    all_preds_classes = (all_preds_probs > 0.5).astype(int)
+    
+    # Calcul des métriques
+    precision = precision_score(all_targets, all_preds_classes)
+    recall = recall_score(all_targets, all_preds_classes)
+    f1 = f1_score(all_targets, all_preds_classes)
+    auc = roc_auc_score(all_targets, all_preds_probs)
+    
+    print(f"Precision: {precision:.4f} | Recall: {recall:.4f} | F1: {f1:.4f} | AUC: {auc:.4f}")
 
 # Lancement des expériences
 for opt in ["SGD", "Momentum", "RMSprop", "Adam"]:
     train_model(opt, learning_rate=0.001)
+
+print("\n=== Évaluation du modèle final (Adam) sur le jeu de test ===")
+best_model = train_model("Adam", learning_rate=0.001, epochs=30)
+
+evaluate_model(best_model, test_loader)

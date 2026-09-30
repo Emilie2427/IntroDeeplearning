@@ -23,3 +23,11 @@ Donc la Loss totale a des termes ajoutés beaucoup plus grand, d'où l'augmentat
 
 3. La courbe bleu clair correspond au Momentum, elle a une perte de 0.02 à 0.07 inférieure au SGB simple (courbe noire). Le moment permet d'annuler le bruits et les oscillations, et on a une pente raide au début puis la courbe converge. 
 
+## Exercice 4 
+
+![résultat de l'exécution du script train.py](4_1.png)
+
+1. La précision est la part de prédictions positives qui sont correctes. (precision = TP / (TP + FP)). Le rappel mesure la proportion d'éléments réellement positifs qui ont été correctement identifiés par le modèle. (rappel = TP / (TP + FN))
+2. Comme le rappel se concentre sur le fait de détecter toutes les occurrences positives, quitte à faire des erreurs sur les négatives, il est meilleur que la précision dans le cadre médical, car il vaut mieux ne pas rater un positif 
+3. La courbe ROC consiste à tracer le taux de vrai positif en fonction du taux de faux positifs. Les autres métriques figent le seuil alors que AUC fait varier la valeur de seuil pour observer comment varient le taux de vrais positifs et le taux de faux positifs à chaque niveau. DOnc elle évalue la performance sur l'ensemble des seuils possibles. 
+
