@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
+from torch.utils.tensorboard import SummaryWriter
 
 # Importation du Dataset défini à l'exercice 1
 from dataset import CardioDataset
@@ -86,3 +87,40 @@ for epoch in range(10):
     print(
         f"Époque [{epoch+1}/10] - Loss moyenne : {running_loss / len(train_loader):.4f}"
     )
+
+
+def train_model(opt_name, learning_rate=0.001, epochs=30):
+    model = MLP(input_size=input_dim, hidden_size=128).to(device)
+    criterion = nn.BCELoss()
+    
+    # Choix de l'optimiseur
+    if opt_name == "SGD":
+        optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+    elif opt_name == "Momentum":
+        optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+    elif opt_name == "RMSprop":
+        optimizer = optim.RMSprop(model.parameters(), lr=learning_rate)
+    elif opt_name == "Adam":
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)"
+        
+    writer = SummaryWriter(f'runs/cardio_{opt_name}_lr{learning_rate}')
+    
+    for epoch in range(epochs):
+        model.train()
+        running_loss = 0.0
+        for batch in train_loader:
+            inputs, targets = batch["features"].to(device), batch["labels"].to(device)
+            optimizer.zero_grad()
+            loss = criterion(model(inputs), targets)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
+            
+        # Logging de la loss moyenne par epoch
+        writer.add_scalar('Training Loss', running_loss / len(train_loader), epoch)
+        
+    writer.close()
+
+# Lancement des expériences
+for opt in ["SGD", "Momentum", "RMSprop", "Adam"]:
+    train_model(opt, learning_rate=0.001)

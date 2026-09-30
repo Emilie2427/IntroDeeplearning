@@ -7,11 +7,19 @@
 
 ## Exercice 2
 
-résultat 2_1_1
-résultat 2_1_2
+![résultat](2_1_1.png) </br>
+![résultat](2_1_2.png)
 
 1. Les lambdas sont petits, c'est-à-dire qu'il y a une petite régularisation. En augmentant les lambdas, on augmente la régularisation. 
 Donc la Loss totale a des termes ajoutés beaucoup plus grand, d'où l'augmentation de la loss moyenne qu'on observe sur les captures 
 2. weight_decay
 3. L1, c'est Lasso, donc il effectue une sélection de variables en forçant plusieurs poids à atteindre exactement zéro. Alors que L2, qui est Ridge, réduit uniformément la valeur absolue de l'ensemble des poids vers zéro sans les annuler complètement, évitant ainsi qu'une seule variable prédomine excessivement. 
+
+## Exercice 3 
+
+1. ![graphiques des quatre optimiseur](3_1.png)
+
+2. Les courbes jaunes et roses convergent le plus vite, elles correspondent respectivement à l'optimiseur d'Adam et à l'optimiseur RMSprop. 
+
+3. La courbe bleu clair correspond au Momentum, elle a une perte de 0.02 à 0.07 inférieure au SGB simple (courbe noire). Le moment permet d'annuler le bruits et les oscillations, et on a une pente raide au début puis la courbe converge. 
 
