@@ -46,3 +46,70 @@ def get_dataloaders(batch_size=256, n_workers=8, subset_size=None):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=n_workers, pin_memory=True)
     val_loader   = DataLoader(val_dataset,   batch_size=batch_size, shuffle=False, num_workers=n_workers, pin_memory=True)
     return train_loader, val_loader
+
+class MLP(nn.Module):
+    def __init__(self, input_size=3 * 227 * 227, hidden_size=256, num_classes=1000):
+        super().__init__()
+        self.classifier = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(inplace=True),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(inplace=True),
+            nn.Linear(hidden_size, num_classes),
+        )
+
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.classifier(x)
+
+class AlexNet(nn.Module):
+    def __init__(self, num_classes=1000):
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(64, 192, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(192, 384, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(384, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+        )
+        self.classifier = nn.Sequential(
+            nn.Dropout(p=0.5),
+            nn.Linear(256 * 6 * 6, 4096),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5),
+            nn.Linear(4096, 4096),
+            nn.ReLU(inplace=True),
+            nn.Linear(4096, num_classes),
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        x = torch.flatten(x, 1)
+        x = self.classifier(x)
+        return x
+
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
+# 1. Instanciation des deux modèles
+mlp_model = MLP()
+alexnet_model = AlexNet()
+
+# 2. Appel de la fonction count_parameters pour compter les poids
+nb_params_mlp = count_parameters(mlp_model)
+nb_params_alexnet = count_parameters(alexnet_model)
+
+# 3. Affichage des résultats 
+# (Le :, permet d'afficher les milliers avec des séparateurs pour que ce soit plus lisible)
+print("=== Vérification du nombre de paramètres ===")
+print(f"Nombre total de paramètres pour le MLP : {nb_params_mlp:,}")
+print(f"Nombre total de paramètres pour AlexNet : {nb_params_alexnet:,}")

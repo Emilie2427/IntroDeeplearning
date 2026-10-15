@@ -44,7 +44,29 @@ La couche 1 concentre 99% des paramètres
 
 La taille du vecteur obtenu par le flatten est très grande. Par ailleurs on perd la relatiion de voisinage entre les pixels, le modeèle devient sensible aux translations. 
 
+### Question 2.b A REFAIRE
 
+| Couche | Taille entrée (C, H×W) | Hyperparamètres (Filtres/Neurones, K, S, P) | Taille sortie (C, H×W) | # Paramètres (avec biais) | Mémoire sortie (KB) |
+| --- | --- | --- | --- | --- | --- |
+| **Conv1 + ReLU**<br> | $3, 227 \times 227$ | $64, 11\times11, S=4, P=2$ | $64, 56 \times 56$ | $23\,296$ | $784$ |
+| **MaxPool1**<br> | $64, 56 \times 56$ | $-, 3\times3, S=2, P=0$ | $64, 27 \times 27$ | $0$ | $182,25$ |
+| **Conv2 + ReLU**<br> | $64, 27 \times 27$ | $192, 5\times5, S=1, P=2$ | $192, 27 \times 27$ | $307\,392$ | $546,75$ |
+| **MaxPool2**<br> | $192, 27 \times 27$ | $-, 3\times3, S=2, P=0$ | $192, 13 \times 13$ | $0$ | $126,75$ |
+| **Conv3 + ReLU**<br> | $192, 13 \times 13$ | $384, 3\times3, S=1, P=1$ | $384, 13 \times 13$ | $663\,936$ | $253,5$ |
+| **Conv4 + ReLU**<br> | $384, 13 \times 13$ | $256, 3\times3, S=1, P=1$ | $256, 13 \times 13$ | $884\,992$ | $169$ |
+| **Conv5 + ReLU**<br> | $256, 13 \times 13$ | $256, 3\times3, S=1, P=1$ | $256, 13 \times 13$ | $590\,080$ | $169$ |
+| **MaxPool3**<br> | $256, 13 \times 13$ | $-, 3\times3, S=2, P=0$ | $256, 6 \times 6$ | $0$ | $36$ |
+| **Flatten + Dropout**<br> | $256, 6 \times 6$ | $p = 0.5$ | $9216$ (1D) | $0$ | $36$ |
+| **Linear1 + ReLU + Dropout**<br> | $9216$ | $4096 \text{ neurones } (p=0.5)$ | $4096$ | $37\,752\,832$ | $16$ |
+| **Linear2 + ReLU**<br> | $4096$ | $4096 \text{ neurones}$ | $4096$ | $16\,781\,312$ | $16$ |
+| **Linear3 (Sortie)**<br> | $4096$ | $1000 \text{ classes}$ | $1000$ | $4\,097\,000$ | $3,9$ |
 
+2. L'essentiel des paramètres se concentre à la fin du réseau, car au début du réseau, chaque élément de la sortie ne dépend que d'un sous-ensemble restreint de l'entrée. Alors que lors du flatten, la grille spatiale et tous les canaux restants sont étirés en un unique grand vecteur. La couche linéaire qui suit connecte alors chaque élément de ce grand vecteur à chacun de ses propres neurones. </br>
+L'essentiel de la mémoire des activations se situe dans les premières couches convolutives car en avançant dans le réseau, la taille spatiale des images diminue avce le pooling ou les convolutions avec un stride.
 
+3. Dans l'étape 1, on commence par faire un flatten, donc transformation en un grand vecteur, puis il est transformé en un vectuer de 256 valeurs, puis de nouveau de 256 et enfin 1000. Ces valeurs représentent quelques kilo-octets. Or AlexNet nécessite environ $2340\text{ KB}$ de mémoire d'activation par image. Ce paradoxe s'explique par l'ordre de traitement de l'information spatiale. Le MLP réduit dès le début l'image, tandis que Alexnet, travaille sur plusieurs sous-ensemble des données, e même filtre est appliqué sur tous les points possibles de l'image sans ajouter de paramètres. 
 
+### Question 2.c
+
+Nombre total de paramètres pour le MLP : 39,897,320
+Nombre total de paramètres pour AlexNet : 61,100,840
