@@ -81,5 +81,9 @@ Nombre total de paramètres pour AlexNet : 61,100,840
 ![résultat](2.png)  
 3.  Je n'arrive pas à afficher les courbes sur tensor. J'ai mis le dossier runs sur git
 
+### Question 3.b 
+
+Même problème que précédemment
+
 
 

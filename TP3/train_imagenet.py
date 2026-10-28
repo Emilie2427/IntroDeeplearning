@@ -207,10 +207,10 @@ def train_model(model_name="alexnet", batch_size=256, lr=1e-4, num_epochs=20, we
 
     # AlexNet
     print("AlexNet")
-    train_model(model_name="alexnet", num_epochs=10, subset_size=20000)"""
+    train_model(model_name="alexnet", num_epochs=10, subset_size=20000)
 if __name__ == "__main__":
     print("=== Entraînement d'AlexNet Deep ===")
-    train_model(model_name="alexnet_deep", num_epochs=10, subset_size=20000)
-"""if __name__ == "__main__":
+    train_model(model_name="alexnet_deep", num_epochs=10, subset_size=20000)"""
+if __name__ == "__main__":
     print("=== Lancement d'AlexNet sur le dataset complet (ImageNet) ===")
-    train_model(model_name="alexnet", num_epochs=50, subset_size=None)"""
+    train_model(model_name="alexnet", num_epochs=50, subset_size=None)
