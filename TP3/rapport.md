@@ -44,7 +44,7 @@ La couche 1 concentre 99% des paramètres
 
 La taille du vecteur obtenu par le flatten est très grande. Par ailleurs on perd la relatiion de voisinage entre les pixels, le modeèle devient sensible aux translations. 
 
-### Question 2.b A REFAIRE
+### Question 2.b
 
 | Couche | Taille entrée (C, H×W) | Hyperparamètres (Filtres/Neurones, K, S, P) | Taille sortie (C, H×W) | # Paramètres (avec biais) | Mémoire sortie (KB) |
 | --- | --- | --- | --- | --- | --- |
@@ -70,3 +70,14 @@ L'essentiel de la mémoire des activations se situe dans les premières couches 
 
 Nombre total de paramètres pour le MLP : 39,897,320
 Nombre total de paramètres pour AlexNet : 61,100,840
+
+## Exercice 3
+
+### Question 3.a
+
+1. model.eval() désactive le dropout car on est dans les données de validation, donc il faut utiliser tous les neuronnes pour ne pas fausser le résultat. model.train() active le dropout car on est dans les données d'entrainement, le dropout permet de rendre le réseau plus robuste et éviter le sur-apprentissage. Si on oublie model.eval() on aurait des résultats faussés, on aurait des résultats différents entre deux évaluation et comme on utiliserait qu'une partie des neuronnes, on aurait métriques incohérentes. 
+2. Accuracy = 1/1000 et perte entropie croisée -ln(1/1000). Le train loss est entre 6.9 et 7.2 ce qui correspond approximativement à -ln(1/100). De même pour l'accuracy, qui est environ égale à 0.001. 
+![résultat](1.png)
+![résultat](2.png)  
+3.  A FINIR EN ATTENTE DE LA FIN DE LEXECUTION
+
