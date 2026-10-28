@@ -79,5 +79,7 @@ Nombre total de paramètres pour AlexNet : 61,100,840
 2. Accuracy = 1/1000 et perte entropie croisée -ln(1/1000). Le train loss est entre 6.9 et 7.2 ce qui correspond approximativement à -ln(1/100). De même pour l'accuracy, qui est environ égale à 0.001. 
 ![résultat](1.png)
 ![résultat](2.png)  
-3.  A FINIR EN ATTENTE DE LA FIN DE LEXECUTION
+3.  Je n'arrive pas à afficher les courbes sur tensor. J'ai mis le dossier runs sur git
+
+
 

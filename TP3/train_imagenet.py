@@ -78,12 +78,12 @@ class AlexNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(256, 256, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            """nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),# ex3 etape2
             nn.ReLU(inplace=True),
             nn.Conv2d(256, 256, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
             nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),"""
+            nn.ReLU(inplace=True), #ex3 etape 2
             nn.MaxPool2d(kernel_size=3, stride=2),
         )
         self.classifier = nn.Sequential(
@@ -142,6 +142,8 @@ def train_model(model_name="alexnet", batch_size=256, lr=1e-4, num_epochs=20, we
         model = AlexNet(num_classes=1000).to(device)
     elif model_name == "mlp":
         model = MLP(num_classes=1000).to(device)
+    elif model_name == "alexnet_deep":
+        model = AlexNet(num_classes=1000).to(device)
     else:
         raise ValueError("Modèle inconnu")
 
@@ -198,14 +200,17 @@ def train_model(model_name="alexnet", batch_size=256, lr=1e-4, num_epochs=20, we
 
     writer.close()
 
-if __name__ == "__main__":
+"""if __name__ == "__main__":
     # MLP
     print("MLP")
     train_model(model_name="mlp", num_epochs=10, subset_size=20000)
 
     # AlexNet
     print("AlexNet")
-    train_model(model_name="alexnet", num_epochs=10, subset_size=20000)
+    train_model(model_name="alexnet", num_epochs=10, subset_size=20000)"""
+if __name__ == "__main__":
+    print("=== Entraînement d'AlexNet Deep ===")
+    train_model(model_name="alexnet_deep", num_epochs=10, subset_size=20000)
 """if __name__ == "__main__":
     print("=== Lancement d'AlexNet sur le dataset complet (ImageNet) ===")
     train_model(model_name="alexnet", num_epochs=50, subset_size=None)"""
