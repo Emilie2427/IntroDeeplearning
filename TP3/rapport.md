@@ -79,11 +79,17 @@ Nombre total de paramètres pour AlexNet : 61,100,840
 2. Accuracy = 1/1000 et perte entropie croisée -ln(1/1000). Le train loss est entre 6.9 et 7.2 ce qui correspond approximativement à -ln(1/100). De même pour l'accuracy, qui est environ égale à 0.001. 
 ![résultat](1.png)
 ![résultat](2.png)  
-3.  Je n'arrive pas à afficher les courbes sur tensor. J'ai mis le dossier runs sur git
+3.  La perte d'apprentissage d'AlexNet diminue beaucoup plus rapidement et atteint une valeur plus basse (~6.55) par rapport au MLP (~6.80) à l'étape 9. La perte de validation d'AlexNet chute de manière continue jusqu'à ~6.55, tandis que celle du MLP reste très élevée et ne diminue que très faiblement (~6.88).Donc AlexNet apprend mieux que MLP. </br>
+Pour MLP, on voit que sa Validation Accuracy chute puis stagne alors que sa Train Accuracy continue de monter légèrement. Sa Validation Loss cesse pratiquement de diminuer.     </br>
+Pour AlexNet sa généralisation (Val Loss/Accuracy) s'améliore au même rythme que son apprentissage (Train Loss/Accuracy), donc il n'y a pas de signe d'overfitting. </br>
+Le MLP est moins bon par rapport à AlexNet car il aplatit  l'image et accumule un grand nombre de paramètres qui favorisent la mémorisation brute, contrairement aux convolutions d'AlexNet qui extraient des caractéristiques visuelles locales grâce au partage de poids.
+![résultat](3.png) 
 
 ### Question 3.b 
 
-Même problème que précédemment
+Il s'agit d'un sous-apprentissage. Le réseau devenant plus profond sans ajout de mécanismes de normalisation, le gradient subit un phénomène d'évanouissement (vanishing gradient) lors de la rétropropagation. Les couches inférieures reçoivent des gradients très faibles, ralentissant le démarrage et la convergence de l'entraînement au cours des 10 premières époques. 
+![résultat](4.png)
+
 
 
 
