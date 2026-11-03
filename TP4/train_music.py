@@ -100,3 +100,166 @@ class MusicModel(nn.Module):
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+@torch.no_grad()
+def evaluate_model(model, val_loader, loss_fn, vocab_size):
+    model.eval()
+    total_loss, total_correct, total_tokens = 0.0, 0, 0
+
+    for x, y in val_loader:
+        x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
+        logits, _ = model(x)
+        
+        # Aplatissement des dimensions (batch_size * seq_len, vocab_size) pour CrossEntropyLoss
+        loss = loss_fn(logits.reshape(-1, vocab_size), y.reshape(-1))
+        
+        total_loss += loss.item() * y.numel()
+        preds = logits.argmax(dim=-1)
+        total_correct += (preds == y).sum().item()
+        total_tokens  += y.numel()
+
+    return total_loss / total_tokens, total_correct / total_tokens
+
+
+def train_model(
+    rnn_type="lstm",
+    subset_size=10000,
+    num_epochs=15,
+    batch_size=128,
+    lr=5e-3,
+    embedding_dim=256,
+    hidden_size=512,
+    max_grad_norm=None,
+    patience=5,
+):
+    train_dataset = MusicDataset(train_data, subset_size=subset_size)
+    val_dataset   = MusicDataset(val_data)
+    
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,  num_workers=2, pin_memory=True)
+    val_loader   = DataLoader(val_dataset,   batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=True)
+
+    model = MusicModel(vocab_size, embedding_dim, hidden_size, rnn_type=rnn_type).to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    loss_fn = nn.CrossEntropyLoss()
+
+    clip_tag = f"clip{max_grad_norm}" if max_grad_norm is not None else "noclip"
+    run_name = f"{rnn_type}_sub{subset_size}_lr{lr}_{clip_tag}_{time.strftime('%H%M%S')}"
+    writer = SummaryWriter(log_dir=f"runs_rnn/{run_name}")
+    save_path = f"best_{rnn_type}.pth"
+
+    best_val_loss = float("inf")
+    patience_counter = 0
+    global_step = 0
+
+    for epoch in range(1, num_epochs + 1):
+        model.train()
+        total_train_loss, total_train_tokens = 0.0, 0
+        epoch_grad_norms = []
+
+        for x, y in tqdm(train_loader, desc=f"[{run_name}] Epoch {epoch}/{num_epochs}", leave=False):
+            x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
+            optimizer.zero_grad(set_to_none=True)
+            
+            logits, _ = model(x)
+            loss = loss_fn(logits.reshape(-1, vocab_size), y.reshape(-1))
+            loss.backward()
+
+            # Calcul de la norme des gradients (et clipping éventuel AVANT optimizer.step())
+            if max_grad_norm is not None:
+                grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=max_grad_norm)
+            else:
+                # Calcul de la norme sans modifier les gradients (max_norm=inf)
+                grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=float("inf"))
+
+            epoch_grad_norms.append(grad_norm.item())
+            if global_step % 20 == 0:
+                writer.add_scalar("GradNorm/step", grad_norm.item(), global_step)
+
+            optimizer.step()
+
+            total_train_loss += loss.item() * y.numel()
+            total_train_tokens += y.numel()
+            global_step += 1
+
+        avg_train_loss = total_train_loss / total_train_tokens
+        avg_grad_norm  = sum(epoch_grad_norms) / len(epoch_grad_norms)
+        val_loss, val_acc = evaluate_model(model, val_loader, loss_fn, vocab_size)
+
+        writer.add_scalar("Loss/Train", avg_train_loss, epoch)
+        writer.add_scalar("Loss/Validation", val_loss, epoch)
+        writer.add_scalar("Accuracy/Validation", val_acc, epoch)
+        writer.add_scalar("GradNorm/Epoch_Avg", avg_grad_norm, epoch)
+        writer.flush()
+
+        print(f"Epoch {epoch:02d} | Train Loss: {avg_train_loss:.4f} | Val Loss: {val_loss:.4f} | "
+              f"Val Acc: {val_acc:.4f} | Avg GradNorm: {avg_grad_norm:.3f}")
+
+        # Early Stopping
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            patience_counter = 0
+            torch.save(model.state_dict(), save_path)
+        else:
+            patience_counter += 1
+            if patience_counter >= patience:
+                print(f"Early stopping déclenché à l'époque {epoch}.")
+                break
+
+    writer.close()
+    return model
+
+@torch.no_grad()
+def generate_music(model, start_sequence, output_length=300, temperature=1.0):
+    model.eval()
+    generated_seq = start_sequence
+
+    # 1. Phase de pré-remplissage (lecture de l'amorce)
+    input_indices = [char_to_index[c] for c in start_sequence]
+    input_tensor = torch.tensor(input_indices, dtype=torch.long, device=device).unsqueeze(0) # (1, len_prompt)
+    
+    # On récupère les logits et l'état caché (h, c) à la fin de l'amorce
+    logits, hidden_state = model(input_tensor, hidden_state=None)
+
+    # 2. Boucle de génération auto-régressive caractère par caractère
+    for _ in range(output_length):
+        # Logits du dernier pas de temps divisés par la température
+        last_logits = logits[:, -1, :] / temperature
+        probs = F.softmax(last_logits, dim=-1).squeeze(0)
+
+        # Tirage aléatoire selon la distribution de probabilité
+        next_index = torch.multinomial(probs, num_samples=1).item()
+        next_char = index_to_char[next_index]
+        generated_seq += next_char
+
+        # Le caractère généré devient la seule entrée (1, 1) du pas de temps suivant !
+        input_tensor = torch.tensor([[next_index]], dtype=torch.long, device=device)
+        logits, hidden_state = model(input_tensor, hidden_state=hidden_state)
+
+    return generated_seq
+
+if __name__ == "__main__":
+    #ex 3 print("--- Run 1 : RNN classique sans clipping ---")
+    #ex 3 train_model(rnn_type="rnn", max_grad_norm=None)
+    #ex 3 
+    #ex 3 print("\n--- Run 2 : RNN classique avec clipping ---")
+    #ex 3 train_model(rnn_type="rnn", max_grad_norm=1.0)
+    #ex 3 
+    #ex 3 print("\n--- Run 3 : LSTM avec clipping ---")
+    #ex 3 train_model(rnn_type="lstm", max_grad_norm=1.0)"""
+    
+    # Génération musicale avec le LSTM
+    print("\n=====================================================")
+    print("--- Génération Musicale ---")
+    print("=====================================================")
+    
+    # On charge le modèle LSTM
+    best_model = MusicModel(vocab_size, embedding_dim=256, hidden_size=512, rnn_type="lstm").to(device)
+    # On charge les poids sauvegardés lors de l'entraînement précédent
+    best_model.load_state_dict(torch.load("best_lstm.pth", weights_only=True))
+    
+    prompt = "X:1\nT:Irish Reel\nM:4/4\nL:1/8\nK:D\n"
+    
+    for T in [0.2, 0.8, 2.0]:
+        print(f"\n--- Température T = {T} ---")
+        partition = generate_music(best_model, prompt, output_length=300, temperature=T)
+        print(partition)

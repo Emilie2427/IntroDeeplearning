@@ -51,3 +51,37 @@ Pour nn.LSTM : </br>
 L'état caché est un tuple de deux tenseurs (h_t, c_t), de formes respectives (num_layers, batch_size, hidden_size) :</br>
 $h_t$ (Hidden state / État caché) : Représente la valeur transmise aux couches suivantes et utilisée pour générer les logits.</br>
 $c_t$ (Cell state / État de la cellule ou mémoire interne) : Représente la mémoire de long terme du LSTM. C'est un convoyeur traversant les cellules avec des modifications graduelles (via les portes d'oubli et d'entrée), ce qui permet de faire circuler le gradient plus facilement sur de longues séquences et d'atténuer le problème de la disparition des gradients (vanishing gradients).
+
+## Exercice 3 
+### Question 1
+
+ Comme loss_fn attend des logits sous forme 2D et un y sous forme 1D. Or logits sort avec la forme (batch_size, seq_len, vocab_size), y sort avec la forme (batch_size, seq_len), donc on est obligé de les reshape, les aplatir. Le -1 nous permet de laisser Pytorch calculer lui-même la dimension pour que le nombre total d'éléments reste le même. 
+
+### Question 2 
+
+loss.backward() déclenche la backpropagation, cette fonction calcule les gradients et les stocke dans l'attribut .grad, avant cette étape il n'y pas de gradient. </br>
+clip_grad_norm_ elle écrête les graidents s'ils sont trop grands pour éviter qu'ils ne dépassent la limite autorisée, donc on elle est après loss.backward(). </br>
+optimizer.step() applique les gradients pour modifier et mettre à jour les poids du modèle. Comme on doit utiliser les gradients ecrétés, clip_grad_norm est avant cette fonction. 
+
+### Question 3 
+
+Comparaison run1 et 2 : </br>
+Les courbes du run 1 (gris) et 2 (bleu clair) se ressemblent, mais on peut noter que le gradient reste toujours en dessous de le clipping est réussi. Le gradient clipping  permet de résoudre le problème de l'exploding gradient qui survient fréquemment dans les RNN simples lors de la rétropropagation à travers le temps (BPTT).  </br>
+![résultat](ex3_grad.png) 
+Les courbes de perte sont aussi similaires. 
+![résultat](ex3_loss.png) 
+
+Comparaison run2 (bleu clair) et 3 (rose) : </br>
+Accuracy :  Le modèle LSTM (courbe rose) atteint une précision d'environ 81,8 %, soit bien plus que le modèle RNN (courbe turquoise) qui stagne autour de 76,8 %.  </br> 
+![résultat](ex3_accuracy.png) 
+Convergence : La courbe du LSTM monte beaucoup plus vite et plus fort dès les toutes premières époques, prouvant qu'il comprend la structure des données beaucoup plus rapidement que le RNN. </br>
+![résultat](ex3_loss.png) 
+Norme des gradients : La norme des gradients du LSTM (courbe rose) est non seulement beaucoup plus basse (autour de 0,06 en fin d'entraînement contre 0,24 pour le RNN) mais aussi extrêmement stable </br>
+![résultat](ex3_grad.png) </br>
+
+Le LSTM gère mieux les dépendances longues grâce à son état de cellule $c_t$. Contrairement au RNN classique qui met à jour son état caché via des multiplications matricielles répétées (menant à la disparition des gradients), le LSTM utilise une mise à jour additive de l'état de cellule. Les portes (notamment la porte d'oubli) régulent le flux d'informations, permettant aux gradients de se propager plus facilement en arrière sans disparaître (vanishing gradient).
+
+### Question 4 
+
+Dans notre dataset la longueur moyenne d'une partition est d'environ 250 caractères, mais on force toutes les séquences à faire 500 caractères en ajoutant des espaces ' ' à la fin. Donc sur les 500 caractères à deviner, près de la moitié sont des espaces vides. Le réseau de neurones va alors apprendre que s'il y a un espace alors le prochain caractère sera un espace. Il va donc avoir près de 100 % de bonnes réponses sur toute la deuxième moitié de la séquence. L'accuracy va alors augmerter, ce qui masque ses difficultés éventuelles à prédire les vraies notes de musique situées dans la première moitié.</br>
+Afin d'ignorer le padding, on utilise le paramètre ignore_index : loss_fn = nn.CrossEntropyLoss(ignore_index=char_to_index[' '])
