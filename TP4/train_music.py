@@ -237,7 +237,7 @@ def generate_music(model, start_sequence, output_length=300, temperature=1.0):
 
     return generated_seq
 
-if __name__ == "__main__":
+"""if __name__ == "__main__":
     #ex 3 print("--- Run 1 : RNN classique sans clipping ---")
     #ex 3 train_model(rnn_type="rnn", max_grad_norm=None)
     #ex 3 
@@ -245,7 +245,7 @@ if __name__ == "__main__":
     #ex 3 train_model(rnn_type="rnn", max_grad_norm=1.0)
     #ex 3 
     #ex 3 print("\n--- Run 3 : LSTM avec clipping ---")
-    #ex 3 train_model(rnn_type="lstm", max_grad_norm=1.0)"""
+    #ex 3 train_model(rnn_type="lstm", max_grad_norm=1.0)
     
     # Génération musicale avec le LSTM
     print("\n=====================================================")
@@ -255,6 +255,35 @@ if __name__ == "__main__":
     # On charge le modèle LSTM
     best_model = MusicModel(vocab_size, embedding_dim=256, hidden_size=512, rnn_type="lstm").to(device)
     # On charge les poids sauvegardés lors de l'entraînement précédent
+    best_model.load_state_dict(torch.load("best_lstm.pth", weights_only=True))
+    
+    prompt = "X:1\nT:Irish Reel\nM:4/4\nL:1/8\nK:D\n"
+    
+    for T in [0.2, 0.8, 2.0]:
+        print(f"\n--- Température T = {T} ---")
+        partition = generate_music(best_model, prompt, output_length=300, temperature=T)
+        print(partition)"""
+
+if __name__ == "__main__":
+    print("\n=====================================================")
+    print("--- Entraînement Final (LSTM Grande Échelle) ---")
+    print("=====================================================")
+    
+    # Lancement du grand entraînement
+    train_model(
+        rnn_type="lstm", 
+        subset_size=50000, 
+        num_epochs=30, 
+        hidden_size=1024, 
+        max_grad_norm=1.0
+    )
+
+    print("\n=====================================================")
+    print("--- Génération Musicale ---")
+    print("=====================================================")
+    
+    # On charge le modèle LSTM avec la nouvelle taille hidden_size=1024
+    best_model = MusicModel(vocab_size, embedding_dim=256, hidden_size=1024, rnn_type="lstm").to(device)
     best_model.load_state_dict(torch.load("best_lstm.pth", weights_only=True))
     
     prompt = "X:1\nT:Irish Reel\nM:4/4\nL:1/8\nK:D\n"

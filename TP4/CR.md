@@ -85,3 +85,22 @@ Le LSTM gère mieux les dépendances longues grâce à son état de cellule $c_t
 
 Dans notre dataset la longueur moyenne d'une partition est d'environ 250 caractères, mais on force toutes les séquences à faire 500 caractères en ajoutant des espaces ' ' à la fin. Donc sur les 500 caractères à deviner, près de la moitié sont des espaces vides. Le réseau de neurones va alors apprendre que s'il y a un espace alors le prochain caractère sera un espace. Il va donc avoir près de 100 % de bonnes réponses sur toute la deuxième moitié de la séquence. L'accuracy va alors augmerter, ce qui masque ses difficultés éventuelles à prédire les vraies notes de musique situées dans la première moitié.</br>
 Afin d'ignorer le padding, on utilise le paramètre ignore_index : loss_fn = nn.CrossEntropyLoss(ignore_index=char_to_index[' '])
+
+## Exercice 4 
+
+### Question 1
+Repasser la séquence entière model(full_seq, None) allonge l'entrée à chaque itération (taille 1, puis 2, jusqu'à N). La somme de ces calculs donne une complexité temporelle quadratique en $\mathcal{O}(N^2)$.
+Notre méthode transmet uniquement le dernier caractère et l'état caché hidden_state (qui résume tout le passé). Chaque itération traite exactement un seul jeton, garantissant une complexité linéaire en $\mathcal{O}(N)$.
+
+### Question 2
+Lorsque $T \to 0^+$, l'écart entre le logit maximum et les autres tend vers l'infini. La distribution s'approche de $1.0$ pour la meilleure classe, correspondant au décodage glouton (Greedy Decoding / Argmax).Lorsque $T \to +\infty$, les valeurs des logits s'écrasent vers zéro. La distribution devient uniforme, rendant le tirage de la note suivante purement aléatoire.
+
+### Question 3 
+1. T = 0.2  : La syntaxe ABC de base (notes, durées, barres de mesure) est valide. Cependant, la génération est  répétitive et s'enferme dans une boucle infinie sur quelques notes (d2 d2 d2). Le modèle choisit systématiquement le caractère le plus probable, ce qui empêche la créativité. 
+
+2. T = 0.8 : La syntaxe est respectée et la mélodie est fluide, variée et cohérente (présence de phrasés comme fede ou Adcd, clôture par une barre de reprise :|). Et on remarque qu'il y a un paddinf à la fin à cause de l'apprentissage du réseau.
+
+    Note sur le comportement du modèle : L'apparition d'une longue série d'espaces vides à la fin montre que le modèle a parfaitement appris le mécanisme de "padding" du dataset. Il a "compris" que la chanson était terminée et a rempli la suite avec des espaces, comme lors de l'entraînement.
+
+3. T = 2.0 : La distribution de probabilité étant écrasée, le modèle tire des caractères de manière presque totalement aléatoire. La syntaxe musicale n'est pas bonne. Il génère des métadonnées invalides, c'est pour cela qu'on ne peut pas le lire dans le lecteur ABC.
+
