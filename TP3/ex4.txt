@@ -1,0 +1,52 @@
+             23197       gpu      tp2   emelis  R      39:01      1 starfighter-slurm-node-01-1
+[compute] [job 23197] emelis@starfighter-slurm-node-01-1:~/TP3
+$ tail -f logs/alexnet-full-*.out
+==> logs/alexnet-full-15543.out <==
+Epoch [1/10] | Train Loss: 6.9081 (Acc: 0.0006) | Val Loss: 6.9075 (Acc: 0.0010)
+Epoch [2/10] | Train Loss: 6.9024 (Acc: 0.0011) | Val Loss: 6.9081 (Acc: 0.0016)
+Epoch [3/10] | Train Loss: 6.8952 (Acc: 0.0014) | Val Loss: 6.9086 (Acc: 0.0012)
+Epoch [4/10] | Train Loss: 6.8647 (Acc: 0.0019) | Val Loss: 6.8610 (Acc: 0.0026)
+Epoch [5/10] | Train Loss: 6.7931 (Acc: 0.0022) | Val Loss: 6.8277 (Acc: 0.0016)
+Epoch [6/10] | Train Loss: 6.7568 (Acc: 0.0026) | Val Loss: 6.8125 (Acc: 0.0022)
+Epoch [7/10] | Train Loss: 6.7367 (Acc: 0.0028) | Val Loss: 6.7936 (Acc: 0.0024)
+Epoch [8/10] | Train Loss: 6.7042 (Acc: 0.0032) | Val Loss: 6.7623 (Acc: 0.0026)
+Epoch [9/10] | Train Loss: 6.6774 (Acc: 0.0034) | Val Loss: 6.7232 (Acc: 0.0040)
+Epoch [10/10] | Train Loss: 6.6533 (Acc: 0.0040) | Val Loss: 6.7102 (Acc: 0.0050)
+
+==> logs/alexnet-full-23198.out <==
+Modèle alexnet_deep initialisé avec 62,871,080 paramètres.
+Epoch [1/10] | Train Loss: 6.9080 (Acc: 0.0010) | Val Loss: 6.9078 (Acc: 0.0004)
+Epoch [2/10] | Train Loss: 6.9005 (Acc: 0.0013) | Val Loss: 6.9065 (Acc: 0.0002)
+Epoch [3/10] | Train Loss: 6.8718 (Acc: 0.0015) | Val Loss: 6.8633 (Acc: 0.0022)
+Epoch [4/10] | Train Loss: 6.8073 (Acc: 0.0022) | Val Loss: 6.8299 (Acc: 0.0020)
+Epoch [5/10] | Train Loss: 6.7673 (Acc: 0.0018) | Val Loss: 6.8301 (Acc: 0.0022)
+Epoch [6/10] | Train Loss: 6.7442 (Acc: 0.0021) | Val Loss: 6.7952 (Acc: 0.0018)
+Epoch [7/10] | Train Loss: 6.7250 (Acc: 0.0027) | Val Loss: 6.7792 (Acc: 0.0026)
+Epoch [8/10] | Train Loss: 6.6966 (Acc: 0.0034) | Val Loss: 6.7422 (Acc: 0.0038)
+Epoch [9/10] | Train Loss: 6.6640 (Acc: 0.0038) | Val Loss: 6.7247 (Acc: 0.0032)
+^C
+✗130 [compute] [job 23197] emelis@starfighter-slurm-node-01-1:~/TP3
+$ tail -f logs/alexnet-full-*.out
+==> logs/alexnet-full-15543.out <==
+Epoch [1/10] | Train Loss: 6.9081 (Acc: 0.0006) | Val Loss: 6.9075 (Acc: 0.0010)
+Epoch [2/10] | Train Loss: 6.9024 (Acc: 0.0011) | Val Loss: 6.9081 (Acc: 0.0016)
+Epoch [3/10] | Train Loss: 6.8952 (Acc: 0.0014) | Val Loss: 6.9086 (Acc: 0.0012)
+Epoch [4/10] | Train Loss: 6.8647 (Acc: 0.0019) | Val Loss: 6.8610 (Acc: 0.0026)
+Epoch [5/10] | Train Loss: 6.7931 (Acc: 0.0022) | Val Loss: 6.8277 (Acc: 0.0016)
+Epoch [6/10] | Train Loss: 6.7568 (Acc: 0.0026) | Val Loss: 6.8125 (Acc: 0.0022)
+Epoch [7/10] | Train Loss: 6.7367 (Acc: 0.0028) | Val Loss: 6.7936 (Acc: 0.0024)
+Epoch [8/10] | Train Loss: 6.7042 (Acc: 0.0032) | Val Loss: 6.7623 (Acc: 0.0026)
+Epoch [9/10] | Train Loss: 6.6774 (Acc: 0.0034) | Val Loss: 6.7232 (Acc: 0.0040)
+Epoch [10/10] | Train Loss: 6.6533 (Acc: 0.0040) | Val Loss: 6.7102 (Acc: 0.0050)
+
+==> logs/alexnet-full-23198.out <==
+Epoch [1/10] | Train Loss: 6.9080 (Acc: 0.0010) | Val Loss: 6.9078 (Acc: 0.0004)
+Epoch [2/10] | Train Loss: 6.9005 (Acc: 0.0013) | Val Loss: 6.9065 (Acc: 0.0002)
+Epoch [3/10] | Train Loss: 6.8718 (Acc: 0.0015) | Val Loss: 6.8633 (Acc: 0.0022)
+Epoch [4/10] | Train Loss: 6.8073 (Acc: 0.0022) | Val Loss: 6.8299 (Acc: 0.0020)
+Epoch [5/10] | Train Loss: 6.7673 (Acc: 0.0018) | Val Loss: 6.8301 (Acc: 0.0022)
+Epoch [6/10] | Train Loss: 6.7442 (Acc: 0.0021) | Val Loss: 6.7952 (Acc: 0.0018)
+Epoch [7/10] | Train Loss: 6.7250 (Acc: 0.0027) | Val Loss: 6.7792 (Acc: 0.0026)
+Epoch [8/10] | Train Loss: 6.6966 (Acc: 0.0034) | Val Loss: 6.7422 (Acc: 0.0038)
+Epoch [9/10] | Train Loss: 6.6640 (Acc: 0.0038) | Val Loss: 6.7247 (Acc: 0.0032)
+Epoch [10/10] | Train Loss: 6.6244 (Acc: 0.0049) | Val Loss: 6.6703 (Acc: 0.0046)

@@ -1,5 +1,7 @@
 #!/bin/bash
 #SBATCH --partition=gpu
+#SBATCH --account=csc_8607
+#SBATCH --qos=normal
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=24G
@@ -9,6 +11,7 @@
 #SBATCH -e logs/%x-%j.err
 
 set -euo pipefail
+
 mkdir -p logs
 
 # Activation de l'environnement virtuel Mamba/Conda
