@@ -16,32 +16,9 @@ requires_grad s'il est à True, il enregistre toutes les opérations mathématiq
 
 La shape exacte du tenseur de sortie sera (32, 2048, 7, 7). 
 
-mport torch.nn.functional as F
+## Exercice 3 
 
-class AttentionModule(nn.Module):
-    def __init__(self, feature_dim, hidden_dim):
-        super(AttentionModule, self).__init__()
-        # Couche pour calculer le score d'attention
-        self.attention_layer = nn.Conv2d(feature_dim + hidden_dim, 1, 1)
+### Question 3.a
 
-    def forward(self, features, hidden_state):
-        # features shape: (batch_size, 2048, 7, 7)
-        # hidden_state shape: (batch_size, hidden_dim)
+Le context_vector correspond à une synthèse visuelle dynamique et pondérée des zones de l'image sur lesquelles le modèle doit se concentrer pour générer le mot suivant. Le problème de Seq2Seq est qu'on réduit l'image, les nombreuses données associées à un vecteur, et donc on perd beaucoup trop d'information. conctext_vetcor permet de remplacer un résumé figé par un zoom dynamique qui se met à jour à chaque nouveau mot. 
 
-        # On "étale" l'état caché sur la grille spatiale 7x7
-        hidden_state_expanded = hidden_state.unsqueeze(2).unsqueeze(3).repeat(1, 1, features.size(2), features.size(3))
-        
-        # Concaténation des caractéristiques de l'image et de l'état du RNN (sur la dimension des canaux)
-        concat_features = torch._______((features, hidden_state_expanded), dim=____)
-        
-        # Calcul des scores (batch_size, 1, 7, 7) -> on retire la dimension de taille 1
-        attention_scores = self.attention_layer(concat_features).squeeze(1)
-        
-        # Application du Softmax sur les 49 régions (7x7)
-        attention_weights = F._______(attention_scores.view(attention_scores.size(0), -1), dim=1)
-        attention_weights = attention_weights.view(attention_scores.size(0), 1, attention_scores.size(1), attention_scores.size(2))
-        
-        # Calcul du vecteur de contexte par somme pondérée sur les dimensions H et W (dim 2 et 3)
-        context_vector = torch._______(torch._______(features * attention_weights, dim=3), dim=2)
-        
-        return context_vector, attention_weights
