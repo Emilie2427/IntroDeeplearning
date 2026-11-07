@@ -1,6 +1,6 @@
 import torch
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 
 # 1. Transformations des images (ResNet attend des images 224x224 normalisées)
 transform = transforms.Compose([
@@ -21,6 +21,8 @@ dataset = datasets.Flickr30k(
 train_size = int(0.8 * len(dataset))
 test_size = len(dataset) - train_size
 train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size], generator=torch.Generator().manual_seed(42))
+
+
 
 # 4. DataLoaders
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4)
